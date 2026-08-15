@@ -1,26 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Job } from './entities/job.entity';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 
 @Injectable()
 export class JobsService {
-  create(createJobDto: CreateJobDto) {
-    return 'This action adds a new job';
+  constructor(
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
+  ) {}
+
+  async create(createJobDto: CreateJobDto) {
+    const job = this.jobRepository.create(
+      createJobDto,
+    );
+
+    return this.jobRepository.save(job);
   }
 
-  findAll() {
-    return `This action returns all jobs`;
+  async findAll() {
+    return this.jobRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} job`;
+  async findOne(id: number) {
+    const job = await this.jobRepository.findOne({
+      where: { id },
+    });
+
+    if (!job) {
+      throw new NotFoundException(
+        'Chambita no encontrada',
+      );
+    }
+
+    return job;
   }
 
-  update(id: number, updateJobDto: UpdateJobDto) {
-    return `This action updates a #${id} job`;
+  async update(
+    id: number,
+    updateJobDto: UpdateJobDto,
+  ) {
+    await this.findOne(id);
+
+    await this.jobRepository.update(
+      id,
+      updateJobDto,
+    );
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} job`;
+  async remove(id: number) {
+    await this.findOne(id);
+
+    await this.jobRepository.delete(id);
+
+    return {
+      message: 'Chambita eliminada correctamente',
+    };
   }
 }
