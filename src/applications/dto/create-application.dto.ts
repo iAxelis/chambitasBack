@@ -1,1 +1,14 @@
-export class CreateApplicationDto {}
+import {
+  IsInt,
+  IsNotEmpty,
+} from 'class-validator';
+
+export class CreateApplicationDto {
+  @IsInt()
+  @IsNotEmpty()
+  jobId!: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  userId!: number;
+}

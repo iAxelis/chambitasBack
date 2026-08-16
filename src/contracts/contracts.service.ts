@@ -1,26 +1,89 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Contract } from './entities/contract.entity';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 
 @Injectable()
 export class ContractsService {
-  create(createContractDto: CreateContractDto) {
-    return 'This action adds a new contract';
+  constructor(
+    @InjectRepository(Contract)
+    private readonly contractRepository: Repository<Contract>,
+  ) {}
+
+  async create(
+    createContractDto: CreateContractDto,
+  ) {
+    const existingContract =
+      await this.contractRepository.findOne({
+        where: {
+          matchId: createContractDto.matchId,
+        },
+      });
+
+    if (existingContract) {
+      throw new ConflictException(
+        'El contrato ya existe para este match',
+      );
+    }
+
+    const contract =
+      this.contractRepository.create(
+        createContractDto,
+      );
+
+    return this.contractRepository.save(
+      contract,
+    );
   }
 
-  findAll() {
-    return `This action returns all contracts`;
+  async findAll() {
+    return this.contractRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contract`;
+  async findOne(id: number) {
+    const contract =
+      await this.contractRepository.findOne({
+        where: { id },
+      });
+
+    if (!contract) {
+      throw new NotFoundException(
+        'Contrato no encontrado',
+      );
+    }
+
+    return contract;
   }
 
-  update(id: number, updateContractDto: UpdateContractDto) {
-    return `This action updates a #${id} contract`;
+  async update(
+    id: number,
+    updateContractDto: UpdateContractDto,
+  ) {
+    await this.findOne(id);
+
+    await this.contractRepository.update(
+      id,
+      updateContractDto,
+    );
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} contract`;
+  async remove(id: number) {
+    await this.findOne(id);
+
+    await this.contractRepository.delete(id);
+
+    return {
+      message: 'Contrato eliminado correctamente',
+    };
   }
 }

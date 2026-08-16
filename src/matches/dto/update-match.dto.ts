@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateMatchDto } from './create-match.dto';
+import {IsIn,IsOptional,IsString,} from 'class-validator';
 
-export class UpdateMatchDto extends PartialType(CreateMatchDto) {}
+export class UpdateMatchDto {
+  @IsOptional()
+  @IsString()
+  @IsIn([
+    'ACTIVE',
+    'COMPLETED',
+    'CANCELLED',
+  ])
+  status?: string;
+}

@@ -4,20 +4,14 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('contracts')
-export class Contract {
+@Entity('job_skills')
+export class JobSkill {
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @Column()
-  matchId!: number;
 
   @Column()
   jobId!: number;
 
   @Column()
-  userId!: number;
-
-  @Column({ default: 'ACTIVE' })
-  status!: string;
+  skillId!: number;
 }
