@@ -1,26 +1,88 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Match } from './entities/match.entity';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 
 @Injectable()
 export class MatchesService {
-  create(createMatchDto: CreateMatchDto) {
-    return 'This action adds a new match';
+  constructor(
+    @InjectRepository(Match)
+    private readonly matchRepository: Repository<Match>,
+  ) {}
+
+  async create(
+    createMatchDto: CreateMatchDto,
+  ) {
+    const existingMatch =
+      await this.matchRepository.findOne({
+        where: {
+          jobId: createMatchDto.jobId,
+          userId: createMatchDto.userId,
+        },
+      });
+
+    if (existingMatch) {
+      throw new ConflictException(
+        'El match ya existe',
+      );
+    }
+
+    const match =
+      this.matchRepository.create(
+        createMatchDto,
+      );
+
+    return this.matchRepository.save(match);
   }
 
-  findAll() {
-    return `This action returns all matches`;
+  async findAll() {
+    return this.matchRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} match`;
+  async findOne(id: number) {
+    const match =
+      await this.matchRepository.findOne({
+        where: { id },
+      });
+
+    if (!match) {
+      throw new NotFoundException(
+        'Match no encontrado',
+      );
+    }
+
+    return match;
   }
 
-  update(id: number, updateMatchDto: UpdateMatchDto) {
-    return `This action updates a #${id} match`;
+  async update(
+    id: number,
+    updateMatchDto: UpdateMatchDto,
+  ) {
+    await this.findOne(id);
+
+    await this.matchRepository.update(
+      id,
+      updateMatchDto,
+    );
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} match`;
+  async remove(id: number) {
+    await this.findOne(id);
+
+    await this.matchRepository.delete(id);
+
+    return {
+      message: 'Match eliminado correctamente',
+    };
   }
 }

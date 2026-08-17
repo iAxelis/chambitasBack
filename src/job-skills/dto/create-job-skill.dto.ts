@@ -3,16 +3,12 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 
-export class CreateContractDto {
-  @IsInt()
-  @IsNotEmpty()
-  matchId!: number;
-
+export class CreateJobSkillDto {
   @IsInt()
   @IsNotEmpty()
   jobId!: number;
 
   @IsInt()
   @IsNotEmpty()
-  userId!: number;
+  skillId!: number;
 }
