@@ -6,6 +6,7 @@ import {
 
 export class LoginDto {
   @IsEmail()
+  @IsNotEmpty()
   email!: string;
 
   @IsString()

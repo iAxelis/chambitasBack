@@ -41,11 +41,17 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+
+    const { password, ...userWithoutPassword } = savedUser;
+
+    return userWithoutPassword;
   }
 
   async findAll() {
-    return this.userRepository.find();
+    const users = await this.userRepository.find();
+
+    return users.map(({ password, ...user }) => user);
   }
 
   async findOne(id: number) {
@@ -59,7 +65,9 @@ export class UsersService {
       );
     }
 
-    return user;
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
   }
 
   async findByEmail(email: string) {
