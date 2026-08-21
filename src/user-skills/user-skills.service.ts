@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,17 +17,23 @@ export class UserSkillsService {
     private readonly userSkillRepository: Repository<UserSkill>,
   ) {}
 
-  async create(
-    createUserSkillDto: CreateUserSkillDto,
-  ) {
-    const userSkill =
-      this.userSkillRepository.create(
-        createUserSkillDto,
-      );
+  async create(createUserSkillDto: CreateUserSkillDto) {
+    const existingUserSkill = await this.userSkillRepository.findOne({
+      where: {
+        userId: createUserSkillDto.userId,
+        skillId: createUserSkillDto.skillId,
+      },
+    });
 
-    return this.userSkillRepository.save(
-      userSkill,
-    );
+    if (existingUserSkill) {
+      throw new ConflictException(
+        'El usuario ya tiene asignada esta habilidad',
+      );
+    }
+
+    const userSkill = this.userSkillRepository.create(createUserSkillDto);
+
+    return this.userSkillRepository.save(userSkill);
   }
 
   async findAll() {
@@ -34,29 +41,24 @@ export class UserSkillsService {
   }
 
   async findOne(id: number) {
-    const userSkill =
-      await this.userSkillRepository.findOne({
-        where: { id },
-      });
+    const userSkill = await this.userSkillRepository.findOne({
+      where: { id },
+    });
 
     if (!userSkill) {
-      throw new NotFoundException(
-        'Relación usuario-habilidad no encontrada',
-      );
+      throw new NotFoundException('Relación usuario-habilidad no encontrada');
     }
 
     return userSkill;
   }
 
   async remove(id: number) {
-    const userSkill =
-      await this.findOne(id);
+    const userSkill = await this.findOne(id);
 
     await this.userSkillRepository.delete(id);
 
     return {
-      message:
-        'Habilidad eliminada del usuario correctamente',
+      message: 'Habilidad eliminada del usuario correctamente',
     };
   }
 }

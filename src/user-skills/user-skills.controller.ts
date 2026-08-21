@@ -1,22 +1,26 @@
-import {Body,Controller,Delete,Get,Param,Post,} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 
 import { UserSkillsService } from './user-skills.service';
 import { CreateUserSkillDto } from './dto/create-user-skill.dto';
 
 @Controller('user-skills')
 export class UserSkillsController {
-  constructor(
-    private readonly userSkillsService: UserSkillsService,
-  ) {}
+  constructor(private readonly userSkillsService: UserSkillsService) {}
 
   @Post()
   create(
     @Body()
     createUserSkillDto: CreateUserSkillDto,
   ) {
-    return this.userSkillsService.create(
-      createUserSkillDto,
-    );
+    return this.userSkillsService.create(createUserSkillDto);
   }
 
   @Get()
@@ -25,16 +29,12 @@ export class UserSkillsController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-  ) {
-    return this.userSkillsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userSkillsService.findOne(id);
   }
 
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-  ) {
-    return this.userSkillsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userSkillsService.remove(id);
   }
 }

@@ -19,7 +19,7 @@ import { ReviewsModule } from './reviews/reviews.module';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',
+      password: '',
       database: 'chambitas',  
       autoLoadEntities: true,
       synchronize: true,
