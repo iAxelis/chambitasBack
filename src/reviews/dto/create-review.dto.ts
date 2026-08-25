@@ -4,20 +4,28 @@ import {
   IsOptional,
   IsString,
   Max,
+  MaxLength,
   Min,
+  MinLength,
 } from 'class-validator';
 
 export class CreateReviewDto {
   @IsInt()
   @IsNotEmpty()
+  @Min(1)
+  @Max(2147483647)
   contractId!: number;
 
   @IsInt()
   @IsNotEmpty()
+  @Min(1)
+  @Max(2147483647)
   reviewerId!: number;
 
   @IsInt()
   @IsNotEmpty()
+  @Min(1)
+  @Max(2147483647)
   reviewedUserId!: number;
 
   @IsInt()
@@ -28,5 +36,7 @@ export class CreateReviewDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(1)
+  @MaxLength(500)
   comment?: string;
 }
