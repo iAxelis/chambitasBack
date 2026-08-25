@@ -1,18 +1,11 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
-import {
-  PassportStrategy,
-} from '@nestjs/passport';
+import { PassportStrategy } from '@nestjs/passport';
 
-import {
-  ExtractJwt,
-  Strategy,
-} from 'passport-jwt';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UsersService } from 'src/users/users.service';
+
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(
@@ -47,6 +40,17 @@ export class JwtStrategy extends PassportStrategy(
       );
     }
 
-    return user;
+    if (!user.isAvailable) {
+      throw new UnauthorizedException(
+        'Usuario no disponible',
+      );
+    }
+
+    const {
+      password,
+      ...userWithoutPassword
+    } = user;
+
+    return userWithoutPassword;
   }
 }
