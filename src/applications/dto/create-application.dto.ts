@@ -1,6 +1,8 @@
 import {
   IsInt,
   IsNotEmpty,
+  IsString,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateApplicationDto {
@@ -11,4 +13,8 @@ export class CreateApplicationDto {
   @IsInt()
   @IsNotEmpty()
   userId!: number;
+
+  @IsOptional()
+  @IsString()
+  message?: string;
 }
