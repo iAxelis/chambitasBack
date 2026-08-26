@@ -15,6 +15,9 @@ export class Application {
   @Column()
   userId!: number;
 
+  @Column({ type: 'text', nullable: true })
+  message?: string;
+
   @Column({ default: 'PENDING' })
   status!: string;
 }

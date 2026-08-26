@@ -4,6 +4,10 @@ import { PassportStrategy } from '@nestjs/passport';
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+import {
+  ConfigService,
+} from '@nestjs/config';
+
 import { UsersService } from 'src/users/users.service';
 
 
@@ -13,6 +17,7 @@ export class JwtStrategy extends PassportStrategy(
 ) {
   constructor(
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {
     super({
       jwtFromRequest:
@@ -21,7 +26,9 @@ export class JwtStrategy extends PassportStrategy(
       ignoreExpiration: false,
 
       secretOrKey:
-        process.env.JWT_SECRET || 'secretito',
+        configService.getOrThrow<string>(
+          'JWT_SECRET',
+        ),
     });
   }
 
